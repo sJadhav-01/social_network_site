@@ -1,0 +1,50 @@
+{% extends 'base.html' %} {% block content %}
+
+<!-- body -->
+
+<div class="container ms-2">
+  <div class="row">
+    <!-- LEFT SIDE -->
+
+    {% if user %}
+    <div class="col-3 mt-4">
+      <h2>{{ user.first_name}}{{user.last_name}}</h2>
+      <ul class="list-group">
+        <li class="list-group-item"><a href="/profile/">Profile</a></li>
+        <li class="list-group-item"><a href="/profile/">Posts</a></li>
+        <li class="list-group-item"><a href="/friends/">Friends</a></li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <!-- MIDDLE POSTS -->
+    <div class="col-6 mt-4">
+      <h1>randon recent posts</h1>
+      <!-- FOR LOOP FOR ALL THE POSTS -->
+
+      <div class="card" style="width: 36rem">
+        <div class="card-body">
+          <h5 class="card-title">Card title</h5>
+          <h6 class="card-subtitle mb-2 text-muted">user name</h6>
+          <p class="card-text">user post content</p>
+          <a href="#" class="card-link">like</a>
+          <a href="#" class="card-link">comment</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+
+    <div class="col-2 mt-4 offset-md-1">
+      <h2>User_name</h2>
+      <ul class="list-group">
+        <li class="list-group-item">An item</li>
+        <li class="list-group-item">A second item</li>
+        <li class="list-group-item">A third item</li>
+        <li class="list-group-item">A fourth item</li>
+        <li class="list-group-item">And a fifth one</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

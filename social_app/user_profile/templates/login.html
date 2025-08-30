@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Social Network</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+  </head>
+
+  <div class="container my-3">
+    <h1
+      class="text-center text-primary fw-bold"
+      style="font-family: 'Times New Roman', Times, serif"
+    >
+      Social Network
+    </h1>
+
+    <div class="card p-4 mx-auto" style="max-width: 400px">
+      <form action="/login/" method="POST">
+        {% csrf_token %}
+        <h3 class="text-center">Login</h3>
+        {% if error %}
+        <h5 class="alert alert-danger text-center">{{ error }}</h5>
+        {% endif %} {% if success %}
+        <h5 class="alert alert-success text-center">{{ success }}</h5>
+        {% endif %}
+
+        <div class="mb-3">
+          <label for="id_email" class="form-label">Email address</label>
+          <input
+            type="email"
+            class="form-control"
+            id="id_email"
+            name="email"
+            required
+            value="{{ value.email }} "
+          />
+        </div>
+
+        <div class="mb-3">
+          <label for="id_password" class="form-label">Password</label>
+          <input
+            type="password"
+            class="form-control"
+            id="id_password"
+            name="password"
+            value=""
+            required
+          />
+        </div>
+
+        <div class="d-flex justify-content-center">
+          <button type="submit" class="btn btn-primary col-md-6">Login</button>
+        </div>
+      </form>
+
+      <p class="text-center text-muted mt-2 mb-2">
+        -------------------------------------
+      </p>
+      <div class="d-flex justify-content-center">
+        <a
+          href="/signup/"
+          class="btn border col-md-6"
+          style="background-color: rgb(28, 209, 28); color: white"
+        >
+          Create new account
+        </a>
+      </div>
+    </div>
+  </div>
+</html>

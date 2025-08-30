@@ -1,0 +1,49 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container ms-2">
+  <div class="row">
+    <!-- LEFT SIDE -->
+
+    <div class="col-3 mt-4">
+      {% if request.session.user %}
+      <h2>{{ user.first_name}}{{user.last_name}}</h2>
+      {% endif %}
+      <ul class="list-group">
+        <li class="list-group-item"><a href="/profile/">Profile</a></li>
+        <li class="list-group-item"><a href="/profile/">Posts</a></li>
+        <li class="list-group-item"><a href="/friends/">Friends</a></li>
+      </ul>
+    </div>
+
+    <div class="col-6 mt-4">
+      <div class="mb-3">
+        {% if request.session.user %}
+        <h2>{{user.first_name}}{{user.last_name}}</h2>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <form method="post" action="/profile/">
+          {% csrf_token %}
+          <label for="exampleFormControlTextarea1" class="form-label"
+            >What's in your mind</label
+          >
+          <textarea
+            type="textarea"
+            class="form-control"
+            id="exampleFormControlTextarea1"
+            name="post"
+            rows="3"
+          ></textarea>
+          <div class="d-flex justify-content-end mt-4">
+            <button type="submit" class="btn btn-primary btn-sm col-md-2">
+              Post
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {% endblock %}
+    </div>
+  </div>
+</div>
