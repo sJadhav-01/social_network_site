@@ -1,0 +1,11 @@
+Social Network (super user - abc - abc@12345)
+
+> create a user table in database
+> create a signup amd login page.
+> create a home page to display randome recent posts 
+> create a user profile page, with a place to  write a post and below that the recent posts of user...
+> a page of friends list and friend suggestions
+> write a friend request logic
+
+
+user_profile = while registering an user , try to use built in user model and expant it with required extra fields. such as first name, last name, account activation status, activation code for user registration ( used random module to create random number),impliment email system to send activation code to the user via email provided by user, gender, save the registration date and time,   
