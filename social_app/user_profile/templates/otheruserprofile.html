@@ -1,0 +1,102 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container ms-2">
+  <div class="row">
+    <!-- LEFT SIDE -->
+
+    <div class="col-3 mt-4">
+      {% if request.session.user %}
+      <h2>
+        {{ request.session.user_first_name}}{{request.session.user_last_name}}
+      </h2>
+
+      <ul class="list-group">
+        <li class="list-group-item"><a href="/profile/">Profile</a></li>
+        <li class="list-group-item"><a href="/profile/">Posts</a></li>
+        <li class="list-group-item"><a href="/friends/">Friends</a></li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="col-6 mt-4">
+      <div class="mb-3">
+        <!-- other_user profile datails -->
+        <div class="profiledetails">
+          <div class="card" style="width: 36rem">
+            <img src="..." class="card-img-top" alt="..." />
+            <div class="card-body">
+              <h5 class="card-title">
+                {{otheruser.first_name}} {{otheruser.last_name}}
+              </h5>
+              <p class="card-text">user's Bio</p>
+            </div>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">Hobbies</li>
+              <li class="list-group-item">Location</li>
+            </ul>
+            <div class="card-body">
+              {% if request_sent %}
+              <button
+                class="btn btn-secondary friend-req-btn"
+                data-other-user-id="{{ otheruser.id }}"
+              >
+                <h6>Requested</h6>
+              </button>
+              {% else %}
+              <button
+                class="btn btn-primary friend-req-btn"
+                data-other-user-id="{{ otheruser.id }}"
+              >
+                <h6>Add as friend</h6>
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <!-- {% if posts %} -->
+        <!-- recent userposts -->
+        <div class="userposts">
+          {% for post in posts %}
+          <div class="card mt-4" style="width: 36rem">
+            <div class="card-body">
+              <form action="/otheruserprofile/" method="post">
+                {% csrf_token %}
+                <input
+                  hidden
+                  type="text"
+                  name="otheruser"
+                  value="{{post.user.id}}"
+                  style="border: none"
+                />
+                <button
+                  type="submit"
+                  style="border: none; background-color: transparent"
+                >
+                  {{post.user}} {{post.user.last_name}}
+                </button>
+              </form>
+              <!-- <h5 class="card-title">{{ user.first_name }}</h5> -->
+              <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
+              <p class="card-text p-2">{{ post.post_content }}</p>
+              <button
+                class="like-btn"
+                style="border: none; background-color: transparent"
+                data-post-id="{{post.id}}"
+              >
+                {% if post.id in liked_post_ids %}
+                <i class="bi bi-hand-thumbs-up-fill"></i>
+                {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
+              </button>
+              <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
+              <a href="#" class="card-link">Comment</a>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <!-- {% endif %} -->
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

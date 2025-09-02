@@ -50,20 +50,20 @@ class AppUser(AbstractUser):
     # isEmailExists method is redundant because of unique=True on the email field.
     # The __str__ method should return a unique identifier, like the username or email.
     def __str__(self):
-        return self.email
+        return self.first_name
     
 
 class UserPost(models.Model):
-    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    post = models.TextField()
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='posts')
+    post_content = models.TextField()
 
     def __str__(self):
         return f'Post by {self.user.email}'
 
 class PostComment(models.Model):
-    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(UserPost, on_delete=models.CASCADE)
-    comment = models.TextField()
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='comments')
+    post = models.ForeignKey(UserPost, on_delete=models.CASCADE, related_name='comments')
+    comment_content = models.TextField()
 
     def __str__(self):
         return f'Comment by {self.user.email} on {self.post}'
@@ -72,8 +72,8 @@ class PostComment(models.Model):
 class PostLike(models.Model):
     # This model simply represents a like. A user likes a post.
     # To get the total number of likes, you count the objects.
-    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    post = models.ForeignKey(UserPost, on_delete=models.CASCADE)
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='likes')
+    post = models.ForeignKey(UserPost, on_delete=models.CASCADE, related_name='likes')
     
     # To prevent a user from liking a post multiple times, add a unique constraint.
     class Meta:
@@ -81,3 +81,28 @@ class PostLike(models.Model):
         
     def __str__(self):
         return f'{self.user.email} likes {self.post}'
+    
+
+class Friends(models.Model):
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='is_friends_with')
+    friend = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='is_friend_of')
+
+    class Meta:
+        unique_together = ('user', 'friend')
+        
+    def __str__(self):
+        return f'{self.user.email} is friends with {self.friend.email}'
+    
+
+class FriendRequest(models.Model):
+    user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='sent_friend_requests')
+    other_user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='received_friend_requests')
+
+    class Meta:
+        unique_together = ('user', 'other_user')
+    
+
+    def __str__(self):
+        return f'{self.other_user.email} got request from  {self.user.email}'
+
+
