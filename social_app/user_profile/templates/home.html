@@ -8,7 +8,7 @@
 
     {% if user %}
     <div class="col-3 mt-4">
-      <h2>{{ user.first_name}}{{user.last_name}}</h2>
+      <h2>{{ user.first_name}} {{user.last_name}}</h2>
       <ul class="list-group">
         <li class="list-group-item"><a href="/profile/">Profile</a></li>
         <li class="list-group-item"><a href="/profile/">Posts</a></li>
@@ -19,18 +19,52 @@
 
     <!-- MIDDLE POSTS -->
     <div class="col-6 mt-4">
-      <h1>randon recent posts</h1>
+      <h1>Recent posts</h1>
       <!-- FOR LOOP FOR ALL THE POSTS -->
-
-      <div class="card" style="width: 36rem">
+      {% for post in posts %}
+      <div class="card mt-4" style="width: 36rem">
         <div class="card-body">
-          <h5 class="card-title">Card title</h5>
-          <h6 class="card-subtitle mb-2 text-muted">user name</h6>
-          <p class="card-text">user post content</p>
-          <a href="#" class="card-link">like</a>
+          <h5 class="card-title">
+            <form action="/otheruserprofile/" method="post">
+              {% csrf_token %}
+              <input
+                hidden
+                type="text"
+                name="otheruser"
+                value="{{ post.user.id }}"
+                style="border: none"
+              />
+              <button
+                type="submit"
+                style="border: none; background-color: transparent"
+              >
+                {{post.user}} {{post.user.last_name}}
+              </button>
+            </form>
+            <!-- <a href="/other-user-profile/" style="text-decoration: none"
+              >{{post.user}}</a
+            > -->
+          </h5>
+          <!-- <h6 class="card-subtitle mb-2 text-muted">user name</h6> -->
+          <p class="card-text p-2">{{post.post_content}}</p>
+          <button
+            class="like-btn"
+            style="border: none; background-color: transparent"
+            data-post-id="{{post.id}}"
+          >
+            {% if post.id in liked_post_ids %}
+            <i class="bi bi-hand-thumbs-up-fill"></i>
+            {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
+          </button>
+          <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
+          <!-- <a href="#" class="card-link" data-post-id="{{post.id}}"
+            >like<i class="bi bi-hand-thumbs-up"></i
+          ></a> -->
+
           <a href="#" class="card-link">comment</a>
         </div>
       </div>
+      {% endfor %}
     </div>
 
     <!-- RIGHT SIDE -->

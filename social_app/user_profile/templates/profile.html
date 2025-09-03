@@ -6,41 +6,70 @@
 
     <div class="col-3 mt-4">
       {% if request.session.user %}
-      <h2>{{ user.first_name}}{{user.last_name}}</h2>
-      {% endif %}
+      <h2>{{ user.first_name}} {{user.last_name}}</h2>
+
       <ul class="list-group">
         <li class="list-group-item"><a href="/profile/">Profile</a></li>
         <li class="list-group-item"><a href="/profile/">Posts</a></li>
         <li class="list-group-item"><a href="/friends/">Friends</a></li>
       </ul>
     </div>
+    {% endif %}
 
     <div class="col-6 mt-4">
       <div class="mb-3">
         {% if request.session.user %}
-        <h2>{{user.first_name}}{{user.last_name}}</h2>
+        <h2>{{user.first_name}} {{user.last_name}}</h2>
         {% endif %}
       </div>
 
       <div class="mb-3">
-        <form method="post" action="/profile/">
-          {% csrf_token %}
-          <label for="exampleFormControlTextarea1" class="form-label"
-            >What's in your mind</label
-          >
-          <textarea
-            type="textarea"
-            class="form-control"
-            id="exampleFormControlTextarea1"
-            name="post"
-            rows="3"
-          ></textarea>
-          <div class="d-flex justify-content-end mt-4">
-            <button type="submit" class="btn btn-primary btn-sm col-md-2">
-              Post
-            </button>
+        <!-- user new post -->
+        <div class="newposts">
+          <form method="post" action="/profile/">
+            {% csrf_token %}
+            <label for="exampleFormControlTextarea1" class="form-label"
+              >What's in your mind</label
+            >
+            <textarea
+              type="textarea"
+              class="form-control"
+              id="exampleFormControlTextarea1"
+              name="post"
+              rows="3"
+            ></textarea>
+            <div class="d-flex justify-content-end mt-4">
+              <button type="submit" class="btn btn-primary btn-sm col-md-2">
+                Post
+              </button>
+            </div>
+          </form>
+        </div>
+        <!-- {% if posts %} -->
+        <!-- recent userposts -->
+        <div class="userposts">
+          {% for post in posts %}
+          <div class="card mt-4" style="width: 36rem">
+            <div class="card-body">
+              <h5 class="card-title">{{ user.first_name }}</h5>
+              <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
+              <p class="card-text">{{ post.post_content }}</p>
+              <button
+                class="like-btn"
+                style="border: none; background-color: transparent"
+                data-post-id="{{post.id}}"
+              >
+                {% if post.id in liked_post_ids %}
+                <i class="bi bi-hand-thumbs-up-fill"></i>
+                {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
+              </button>
+              <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
+              <a href="#" class="card-link">Comment</a>
+            </div>
           </div>
-        </form>
+          {% endfor %}
+        </div>
+        <!-- {% endif %} -->
       </div>
 
       {% endblock %}
