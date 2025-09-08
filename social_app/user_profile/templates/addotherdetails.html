@@ -1,0 +1,64 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container my-3 col-6 mt-4">
+  
+  <h3>{{user.first_name}} {{user.last_name}}</h3>
+
+  <form action="/addotherdetails/" method="POST">
+    {% csrf_token %}
+    <div class="row">
+        <!-- Bio -->
+      <div class=" mb-3">
+        <label for="bio" class="form-label">Bio</label>
+        <textarea
+          type="text"
+          class="form-control"
+          id="bio"
+          name="bio"
+          value=""
+          rows="3"
+        ></textarea>
+      </div>
+      <!-- hobbies -->
+      <div class="col-md-6 mb-3">
+        <label for="hobbies" class="form-label">Hobbies</label>
+        <textarea
+          type="text"
+          class="form-control"
+          id="hobbies"
+          name="hobbies"
+          value="{{ value.last_name }} "
+          required
+        ></textarea>
+      </div>
+    </div>
+   
+    <!-- location -->
+    <div class="col-md-6 mb-3">
+      <label for="location" class="form-label">Location</label>
+      <input
+        type="text"
+        class="form-control"
+        id="hobbies"
+        name="hobbies"
+        required
+        value="{{ value.dob }} "
+      />
+    </div>
+
+    
+    <!-- button -->
+    <div class="d-flex justify-content-center">
+      <button
+        type="submit"
+        class="btn border col-md-6"
+        style="background-color: darkslateblue; color: cornsilk"
+      >
+        Add details
+      </button>
+    </div>
+    
+  </form>
+</div>
+
+{% endblock %}

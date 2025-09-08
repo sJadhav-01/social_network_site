@@ -19,136 +19,90 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css"
     />
-
-    <style>
-      .navbar-custom {
-        background-color: #ffffff;
-        border-bottom: 1px solid #e5e5e5;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08),
-          0 4px 12px rgba(0, 0, 0, 0.08);
-        position: sticky;
-        top: 0;
-        z-index: 1020;
-      }
-
-      .navbar-brand img {
-        height: 40px;
-      }
-
-      .search-form {
-        position: relative;
-      }
-
-      .search-form .form-control {
-        border-radius: 20px;
-        padding-left: 40px;
-        background-color: #f0f2f5;
-      }
-
-      .search-form .fa-search {
-        position: absolute;
-        left: 15px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #606770;
-      }
-
-      .nav-link.social-icon {
-        font-size: 1.5rem;
-        color: #606770;
-        transition: color 0.3s ease;
-      }
-
-      .nav-link.social-icon:hover {
-        color: #3b5998;
-      }
-
-      .profile-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        object-fit: cover;
-      }
-    </style>
+    <link rel="stylesheet" href="/static/style.css"/>
   </head>
 
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-      <div
-        class="container-fluid d-flex justify-content-between align-items-center"
-      >
-        <a class="navbar-brand" href="/">
-          <h2>Social Network</h2>
-        </a>
-        <form
-          method="GET"
-          class="d-none d-md-flex my-2 my-lg-0 search-form ms-auto me-auto"
+  <body display: flex;
+    flex-direction: column;>
+    <div class="site-container" style=" height: 100vh;">
+      <nav class="navbar navbar-expand-lg navbar-custom">
+        <div
+          class="container-fluid d-flex justify-content-between align-items-center"
         >
-          <span class="fas fa-search"></span>
-          <input
-            class="form-control me-2"
-            type="search"
-            placeholder="Search"
-            aria-label="Search"
-          />
-          <button class="btn btn-sm border me-2 rounded" type="submit">
-            Search
-          </button>
-        </form>
+          <a class="navbar-brand" href="/">
+            <h2>Social Network</h2>
+          </a>
+          <form
+            action="/search/"
+            method="GET"
+            class="d-none d-md-flex my-2 my-lg-0 search-form ms-auto me-auto"
+          >
+            <span class="fas fa-search"></span>
+            <input
+              class="form-control me-2"
+              type="text"
+              name="search_key"
+              placeholder="Search"
+              aria-label="Search"
+            />
+            <button class="btn btn-sm search-btn me-2 rounded" type="submit">
+              Search
+            </button>
+          </form>
 
-        <div class="d-flex align-items-center">
-          <ul class="navbar-nav flex-row">
-            <li class="nav-item me-2">
-              <a class="nav-link social-icon" href="#"
-                ><i class="fas fa-home"></i
-              ></a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link social-icon" href="#"
-                ><i class="fas fa-users"></i
-              ></a>
-            </li>
-            <li class="nav-item me-2">
-              <a class="nav-link social-icon" href="#"
-                ><i class="fas fa-bell"></i
-              ></a>
-            </li>
-          </ul>
-
-          {% if request.session.user %}
-
-          <div class="me-1">Hi, {{request.session.user_first_name}}</div>
-          <img
-            class="profile-icon me-2"
-            src="/static/profile.webp"
-            alt="Profile Picture"
-          />
-
-          <div class="dropdown me-5">
-            <a
-              class="btn btn-secondary dropdown-toggle"
-              href="#"
-              role="button"
-              id="dropdownMenuLink"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-            </a>
-
-            <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-              <li><a class="dropdown-item" href="/profile/">Profile</a></li>
-              <li><a class="dropdown-item" href="#">Friends</a></li>
-              <li><a class="dropdown-item" href="#">Messages</a></li>
-              <li><a class="dropdown-item" href="/logout/">Logout</a></li>
+          <div class="d-flex align-items-center">
+            <ul class="navbar-nav flex-row">
+              <li class="nav-item me-2">
+                <a class="nav-link social-icon" href="/"
+                  ><i class="fas fa-home"></i
+                ></a>
+              </li>
+              <li class="nav-item me-2">
+                <a class="nav-link social-icon" href="/friends/"
+                  ><i class="fas fa-users"></i
+                ></a>
+              </li>
+              <li class="nav-item me-2">
+                <a class="nav-link social-icon" href="/notifications/"
+                  ><i class="fas fa-bell"></i
+                ></a>
+              </li>
             </ul>
-          </div>
 
-          {% else %}
-          <a class="nav-link social-icon me-2" href="/login/">Login</a>
-          <a class="nav-link social-icon ms-2" href="/signup/">Sign Up</a>
-          {% endif %}
+            {% if request.session.user %}
+
+            <div class="username me-1">
+              Hi, {{request.session.user_first_name}}
+            </div>
+
+            <div class="dropdown me-5" style="width: 3rem">
+              <a
+                class="btn"
+                href="#"
+                role="button"
+                id="dropdownMenuLink"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+                ><img
+                  class="profile-icon me-2"
+                  src="/static/profile.webp"
+                  alt="Profile Picture"
+                />
+              </a>
+
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <li><a class="dropdown-item" href="/profile/">Profile</a></li>
+                <li><a class="dropdown-item" href="/friends/">Friends</a></li>
+                <li><a class="dropdown-item" href="#">Messages</a></li>
+                <li><a class="dropdown-item" href="/logout/">Logout</a></li>
+              </ul>
+            </div>
+
+            {% else %}
+            <a class="nav-link social-icon me-2" href="/login/">Login</a>
+            <a class="nav-link social-icon ms-2" href="/signup/">Sign Up</a>
+            {% endif %}
+          </div>
         </div>
-      </div>
-    </nav>
-  </body>
-</html>
+      </nav>
+    </div>

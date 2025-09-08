@@ -2,14 +2,14 @@
 
 <!-- body -->
 
-<div class="container ms-2">
+<div class="container ms-6 user-links">
   <div class="row">
     <!-- LEFT SIDE -->
 
-    {% if user %}
+    {% if request.session.user %}
     <div class="col-3 mt-4">
-      <h2>{{ user.first_name}}{{user.last_name}}</h2>
-      <ul class="list-group">
+      <h2>{{ request.session.user_first_name}} {{request.session.user_last_name}}</h2>
+      <ul class="list-group mt-4 me-5">
         <li class="list-group-item"><a href="/profile/">Profile</a></li>
         <li class="list-group-item"><a href="/profile/">Posts</a></li>
         <li class="list-group-item"><a href="/friends/">Friends</a></li>
@@ -20,11 +20,11 @@
     <!-- MIDDLE POSTS -->
     <div class="col-6 mt-4">
       <div class="frnd-req">
-        <h1>Friend requests</h1>
+        <h4>Friend requests</h4>
         {% if not received_reqs %}
         <h6>You have no friend requests yet.</h6>
         {% else %} {% for received_req in received_reqs %}
-        <div class="card mt-4 friend-req-card" style="width: 36rem">
+        <div class="card mt-4 mb-2 friend-req-card" style="width: 18rem">
           <div class="card-body">
             <h5 class="card-title">
               <form action="/otheruserprofile/" method="post">
@@ -36,26 +36,28 @@
                   value="{{ received_req.user.id }}"
                 />
                 <button
+                class="btn-sm"
                   type="submit"
                   style="border: none; background-color: transparent"
                 >
-                  {{ received_req.user.first_name }} 
-                  {{ received_req.user.last_name }}
+                  {{ received_req.user.first_name }} {{ received_req.user.last_name }}
                 </button>
-              </form>
+              </form> 
             </h5>
             <div class="card-body">
               <button
-                class="btn btn-primary accept-btn friend-req-action-btn"
+                class="btn btn-primary btn-sm accept-btn friend-req-action-btn"
                 data-received-req-id="{{ received_req.id }}"
-                data-action="accept">
+                data-action="accept"
+              >
                 <h6>Accept</h6>
               </button>
 
               <button
-                class="btn btn-secondary reject-btn friend-req-action-btn"
+                class="btn btn-secondary btn-sm reject-btn friend-req-action-btn"
                 data-received-req-id="{{ received_req.id }}"
-                data-action="reject">
+                data-action="reject"
+              >
                 <h6>Reject</h6>
               </button>
             </div>
@@ -67,11 +69,11 @@
       <!-- friends -->
 
       <div class="col-6 mt-4">
-        <h1>Friends</h1>
+        <h4>Friends</h4>
         {% if not friends %}
         <h6>You have no friend yet</h6>
         {% else %} {% for friend in friends %}
-        <div class="card mt-4" style="width: 36rem">
+        <div class="card mt-4" style="width: 18rem">
           <div class="card-body">
             <h5 class="card-title">
               <form action="/otheruserprofile/" method="post">
@@ -96,12 +98,14 @@
       </div>
 
       <!-- friends suggestion -->
-      <div class="frnd-sugg">
-        <h1>Friend Suggestions</h1>
-        {% for friend_sugg in friend_suggs %} 
+      <div class="frnd-sugg mt-4 p-0">
+        <h4>Friend Suggestions</h4>
+        {% for friend_sugg in friend_suggs %}
         {% if friend_sugg.id not in received_req_ids %}
-        {% if friend_sugg.id not in friends_ids %}
-        <div class="card mt-4" style="width: 36rem">
+        {% if friend_sugg.id not in friend_ids %}
+
+        <div class="card mt-2 " style="width: 18rem">
+          
           <div class="card-body">
             <h5 class="card-title">
               <form action="/otheruserprofile/" method="post">
@@ -120,27 +124,26 @@
                 </button>
               </form>
             </h5>
-          </div>
+            {% if friend_sugg.id in requests_sent_to %}
+            <button
+              class="btn btn-secondary friend-req-btn mt-1"
+              data-other-user-id="{{ friend_sugg.id }}"
+            >
+              <h6>Requested</h6>
+            </button>
+            {% else %}
+            <button
+              class="btn btn-primary friend-req-btn mt-1"
+              data-other-user-id="{{ friend_sugg.id }}"
+            >
+              <h6>Add as friend</h6>
+            </button>
+            {% endif %}
+          </div> 
         </div>
-        <div class="card-body mt-2">
-          {% if friend_sugg.id in requests_sent_to %}
-          <button
-            class="btn btn-secondary friend-req-btn m-2"
-            data-other-user-id="{{ friend_sugg.id }}"
-          >
-            <h6>Requested</h6>
-          </button>
-          {% else %}
-          <button
-            class="btn btn-primary friend-req-btn m-2"
-            data-other-user-id="{{ friend_sugg.id }}"
-          >
-            <h6>Add as friend</h6>
-          </button>
-          {% endif %}
-        </div>
-        {% endif %}
-        {% endif %} {% endfor %}
+        {% endif%}
+        {% endif%}
+        {% endfor %}
       </div>
       {% endblock %}
     </div>

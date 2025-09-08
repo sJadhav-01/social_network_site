@@ -25,7 +25,10 @@ class AppUser(AbstractUser):
     )
     birthday = models.DateField(null=True, blank=True)
     phone = models.CharField(max_length=15, unique=True)
-    
+    bio = models.TextField(null=True, blank=True)
+    hobbies = models.TextField(null=True, blank=True)
+    location = models.CharField(max_length=100, null=True, blank=True)
+
     # You can customize built-in fields like this, but be careful.
     # The AbstractUser email field is already unique, so this is just for clarity.
     email = models.EmailField(unique=True, blank=False, null=False)
@@ -56,6 +59,7 @@ class AppUser(AbstractUser):
 class UserPost(models.Model):
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE, related_name='posts')
     post_content = models.TextField()
+    
 
     def __str__(self):
         return f'Post by {self.user.email}'

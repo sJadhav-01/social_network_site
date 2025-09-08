@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, HttpResponse, get_object_or_404
 from django.contrib.auth.hashers import make_password, check_password
-from .models import AppUser, UserPost, PostLike, FriendRequest, Friends
+from .models import AppUser, UserPost, PostLike, FriendRequest, Friends, PostComment
 from django.views import View
 from django.core.exceptions import ValidationError
 from datetime import datetime
@@ -9,22 +9,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.db.models import Count
 import json
+from django.core.serializers import serialize
+from django.db.models import Q
 
 # Create your views here.
-
-
-class Home(View):
-    def get(self, request):
-        user_id = request.session.get('user')
-        if user_id:
-            try:
-                user = AppUser.objects.get(id=user_id)
-                posts = UserPost.objects.all().order_by('-id').annotate(like_count=Count('likes'))
-                liked_post_ids = PostLike.objects.filter(user=user).values_list('post_id', flat=True)
-                return render(request, 'home.html', {'user': user, 'posts': posts, 'liked_post_ids': liked_post_ids})
-            except AppUser.DoesNotExist:
-                return redirect('login')
-        return redirect('login')
 
 
 class Signup(View):
@@ -93,7 +81,9 @@ class Signup(View):
                 })
 
             # Redirect after successful signup (Post/Redirect/Get pattern)
-            return redirect('login') 
+            return render(request, 'signup.html', {
+                'message': 'Account created successfully', 
+            })
         else:
             # Re-render the form with error message and previous values
             return render(request, 'signup.html', {
@@ -123,7 +113,6 @@ class Signup(View):
     
 
 
-
 class Login(View):
 
     def get(self, request):
@@ -132,10 +121,15 @@ class Login(View):
         return render(request, 'login.html')
 
     def post(self, request):
+        error_message = None
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user = AppUser.objects.get(email = email)
-        error_message = None
+        try:
+            user = AppUser.objects.get(email = email)
+        except AppUser.DoesNotExist:
+            error_message = 'Please register first'
+            return render (request, 'login.html', {'error': error_message})
+        
         if user:
             flag = check_password(password, user.password)
             if flag:
@@ -147,7 +141,7 @@ class Login(View):
                 return redirect('home')
             else: 
                 error_message = 'Password entered is not correct !!'
-                return render(request, 'login.html', {'error' : error_message})
+                return render(request, 'login.html', {'error' : error_message, 'email': email})
         return redirect('login')
     
 
@@ -184,6 +178,21 @@ class Logout(View):
         return redirect ('login')
 
 
+
+class Home(View):
+    def get(self, request):
+        user_id = request.session.get('user')
+        if user_id:
+            try:
+                user = AppUser.objects.get(id=user_id)
+                posts = UserPost.objects.all().order_by('-id').annotate(like_count=Count('likes', distinct=True)).annotate(comment_count=Count('comments', distinct=True))
+                liked_post_ids = PostLike.objects.filter(user=user).values_list('post_id', flat=True)
+                return render(request, 'home.html', {'user': user, 'posts': posts, 'liked_post_ids': liked_post_ids})   
+            except AppUser.DoesNotExist:
+                return redirect('login')
+        return redirect('login')
+
+
 class Profile(View):
     
     def get(self, request):
@@ -192,7 +201,7 @@ class Profile(View):
             return redirect('login')
         try:
             user = AppUser.objects.get(id=user_id)
-            posts = UserPost.objects.filter(user_id = user_id).order_by('-id').annotate(like_count=(Count('likes')))  # here 'likes' is a relateed_name
+            posts = UserPost.objects.filter(user_id=user_id).order_by('-id').annotate(like_count=(Count('likes', distinct=True))).annotate(comment_count=Count('comments', distinct=True))  # here 'likes' is a relateed_name
             liked_post_ids = PostLike.objects.filter(user=user).values_list('post_id', flat=True)
             return render(request, 'profile.html', {'user': user, 'posts': posts, 'liked_post_ids': liked_post_ids})
         except AppUser.DoesNotExist:
@@ -208,9 +217,22 @@ class Profile(View):
             user=AppUser.objects.get(id=user_id)
             if post_content:
                 UserPost.objects.create(user=user, post_content=post_content)
-            return redirect('profile')
+                return redirect('profile')
         except AppUser.DoesNotExist:
             return redirect('login')
+
+
+
+class EditProfile(View):
+    def get(self, request):
+        return render(request, 'editprofile.html') 
+
+
+class AddProfileDetails(View):
+    def get(self, request):
+        return render(request, 'addotherdetails.html')
+
+
 
 
 class OtherUserProfile(View):
@@ -226,10 +248,11 @@ class OtherUserProfile(View):
             print(user)
             other_user = AppUser.objects.get(id=other_user_id)
             print(other_user)
-            posts = UserPost.objects.filter(user_id=other_user_id).order_by('-id').annotate(like_count=(Count('likes')))
+            posts = UserPost.objects.filter(user_id=other_user_id).order_by('-id').annotate(like_count=(Count('likes', distinct=True))).annotate(comment_count=Count('comments', distinct=True))
             liked_post_ids = PostLike.objects.filter(user=user).values_list('post_id', flat=True)
             request_sent = FriendRequest.objects.filter(user=user, other_user=other_user).exists()
-            return render (request, 'otheruserprofile.html', {'otheruser' : other_user, 'posts': posts, 'liked_post_ids': liked_post_ids, 'request_sent': request_sent})
+            friends_ids = Friends.objects.filter(user=user).values_list('friend', flat=True)
+            return render (request, 'otheruserprofile.html', {'otheruser' : other_user, 'posts': posts, 'liked_post_ids': liked_post_ids, 'request_sent': request_sent, 'firndes_ids' : friends_ids})
         except AppUser.DoesNotExist:
             return redirect('home')
         
@@ -259,22 +282,48 @@ class FriendsList(View):
         received_req_ids = FriendRequest.objects.filter(other_user=user).values_list('user__id', flat=True)
         requests_sent_to = FriendRequest.objects.filter(user=user).values_list('other_user', flat=True)
         friends = Friends.objects.filter(user=user)
-        friends_id = Friends.objects.filter(user=user).values_list('friend', flat=True)
-        random_users = AppUser.objects.exclude(id=user_id).order_by('?')[:10]
+        friend_ids = Friends.objects.filter(user=user).values_list('friend', flat=True)
+        random_users = AppUser.objects.exclude(id=user_id).order_by('?')[:20]
         # random_users = AppUser.objects.exclude(id=user.id).exclude(id__in=requests_sent_to).order_by('?')[:10]
-        return render(request, 'friends.html', {'friends': friends, 'received_reqs': received_reqs, 'friend_suggs': random_users, 'requests_sent_to': requests_sent_to, 'received_req_ids':received_req_ids , 'friends_id': friends_id })
+        return render(request, 'friends.html', {'friends': friends, 'received_reqs': received_reqs, 'friend_suggs': random_users, 'requests_sent_to': requests_sent_to, 'received_req_ids':received_req_ids, 'friend_ids': friend_ids })
+
+
+class SearchResult(View):
+
+    def get(self, request):
+        search_key = request.GET.get('search_key')
+    
+        user_id = request.session.get('user')
+        if not AppUser.objects.get(id=user_id):
+            return redirect('login')
+        
+        user_result = AppUser.objects.filter(Q(first_name__icontains = search_key)|Q( last_name__icontains = search_key))
+
+        post_result = UserPost.objects.filter(Q(post_content__icontains = search_key)|Q(user__first_name__icontains = search_key)|Q(user__last_name__icontains = search_key))
+
+        return render(request, 'search.html', {'user_result': user_result, 'post_result' : post_result}) 
+
+
+
+
+
+
 
 
 # api view
 # @method_decorator(csrf_exempt, name='dispatch')
+
 class PostLikeCheck(View):
     def post(self, request, post_id):
         # csrf_token = request.COOKIES['csrf_token']
         # print(csrf_token)
         user_id = request.session.get('user')
+        if not user_id:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
         # print(user_id)
-        user = AppUser.objects.get(id=user_id)
-        if not user:
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
             return JsonResponse({'error': 'Authentication required'}, status=401)
         # user = request.user # Get the authenticated user
         try:
@@ -293,9 +342,11 @@ class PostLikeCheck(View):
         # Note: # this is to remember. instead of accessing full object only one column of table can be accessed PostLike.post
              
         post_like_count = PostLike.objects.filter(post=post).count()
+        comment_like_count = PostComment.objects.filter(post=post).count()
         return JsonResponse({
             'status': status,
-            'likes': post_like_count
+            'likes_count': post_like_count,
+            'comments_count' : comment_like_count,
         })
     
 
@@ -373,3 +424,98 @@ class FriendRequestAction(View):
         return JsonResponse({
             'request_status': request_status
         })
+    
+
+
+class AddComment(View):
+
+    def get(self, request, post_id):
+      
+        user_id = request.session.get('user')
+        if not user_id:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+        
+        try:
+            user= AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        if UserPost.objects.filter(id=post_id).exists():
+            post = UserPost.objects.get(id=post_id)
+        else:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+        
+        try:
+            comments_on_post = PostComment.objects.filter(post=post)
+            # comment_count = comments_on_post = PostComment.objects.filter(post=post).count()
+            comments_count = comments_on_post.count()
+           
+            comment_list = []
+            for comment in comments_on_post:
+                comment_list.append({
+                    'comment_content': comment.comment_content,
+                    'user_first_name': comment.user.first_name,
+                    'user_last_name': comment.user.last_name,
+                })
+                
+            # Return the list as a JSON response
+            return JsonResponse({
+                'comments_on_post': comment_list, # This is now a list of dictionaries
+                'comment_count': comments_count
+            })
+        
+        except PostComment.DoesNotExist:
+            return JsonResponse({'error': 'Comments not found'}, status=404)
+
+
+    def post(self, request, post_id):
+
+        try:
+            data = json.loads(request.body)
+            comment_content = data.get('comment_content')
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+       
+        user_id = request.session.get('user')
+        if not user_id:
+            return JsonResponse({'error': 'Authentication required'}, status=401)
+        
+        try:
+            user= AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            return JsonResponse({'error': 'User not found'}, status=404)
+
+        if UserPost.objects.filter(id=post_id).exists():
+            post = UserPost.objects.get(id=post_id)
+        else:
+            return JsonResponse({'error': 'Post not found'}, status=404)
+        
+        if comment_content:
+            PostComment.objects.create(user=user, post=post, comment_content=comment_content)
+            comments_count = PostComment.objects.filter(post=post).count()
+            return JsonResponse({
+                'status' : 'added',
+                'comments_count': comments_count
+                })
+        else:
+            return JsonResponse({'error': 'Comment was empty'}, status=404)
+            
+
+class DeletePost(View):
+
+    def delete(self, request, post_id ):
+        user_id = request.session.get('user')
+
+        try:
+            user = AppUser.objects.get(id=user_id)
+        except AppUser.DoesNotExist:
+            return redirect('login')
+        
+        try:
+            post = UserPost.objects.filter(id=post_id, user=user).delete()
+            status = 'deleted'
+            return JsonResponse({
+                'status': status
+            })
+        except UserPost.DoesNotExist:
+            return JsonResponse({'error': 'Post not found'}, status=404)
