@@ -13,14 +13,14 @@
   </head>
 
   <div class="container my-3">
-    <h1
-      class="text-center text-primary fw-bold"
-      style="font-family: 'Times New Roman', Times, serif"
+    <h1 
+      class="text-center  fw-bold m-4"
+      style="color: darkslateblue;"
     >
       Social Network
     </h1>
 
-    <div class="card p-4 mx-auto" style="max-width: 400px">
+    <div class="card p-4 mx-auto" style="max-width: 400px; color: cornsilk; background-color:darkslateblue">
       <form action="/login/" method="POST">
         {% csrf_token %}
         <h3 class="text-center">Login</h3>
@@ -38,7 +38,7 @@
             id="id_email"
             name="email"
             required
-            value="{{ value.email }} "
+            value="{{ email }} "
           />
         </div>
 
@@ -55,7 +55,7 @@
         </div>
 
         <div class="d-flex justify-content-center">
-          <button type="submit" class="btn btn-primary col-md-6">Login</button>
+          <button type="submit" class="btn border" style="background-color: darkslateblue; color: cornsilk">Login</button>
         </div>
       </form>
 
@@ -66,7 +66,7 @@
         <a
           href="/signup/"
           class="btn border col-md-6"
-          style="background-color: rgb(28, 209, 28); color: white"
+          style="background-color: darkslateblue; color: cornsilk"
         >
           Create new account
         </a>

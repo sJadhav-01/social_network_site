@@ -1,0 +1,102 @@
+html body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    background-color: darkslateblue;
+    color: cornsilk;
+    display: flex; /* Make the body a flex container */
+    flex-direction: column; /* Stack children vertically */
+}
+
+.site-container {
+    flex: 1; /* This is the key: it makes the main content area grow to fill available space */
+}
+
+.navbar-custom {
+        background-color: #ffffff;
+        border-bottom: 1px solid #e5e5e5;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08),
+          0 4px 12px rgba(0, 0, 0, 0.08);
+        position: sticky;
+        top: 0;
+        z-index: 1020;
+        color: darkslateblue;
+      }
+
+      .navbar-brand img {
+        height: 40px;
+        
+      }
+      .navbar-brand h2{
+        color: darkslateblue;
+      }
+
+      .search-form {
+        position: relative;
+        
+      }
+
+      .search-form .form-control {
+        border-radius: 20px;
+        padding-left: 40px;
+        background-color: #f0f2f5;
+      }
+
+      .search-form .fa-search {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #606770;
+      }
+
+      .nav-link.social-icon {
+        font-size: 1.5rem;
+        color: #606770;
+        transition: color 0.3s ease;
+      }
+
+      .nav-link.social-icon:hover {
+        color: #3b5998;
+      }
+
+      .profile-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        
+      }
+
+      .username {
+        color: darkslateblue;
+      }
+      
+      .user-links a {
+        text-decoration: none;
+        color: darkslateblue;
+
+      }
+
+      .user-links-r h2 a {
+        text-decoration: none;
+        color: darkslateblue;
+      } 
+
+      .search-btn {
+       color: darkslateblue;
+      }
+
+      .footer-class {
+        color: darkslateblue;
+        background-color: cornsilk;
+        margin-top: 5px;
+      }
+
+      .footer-class a {
+        text-decoration: none;
+      }

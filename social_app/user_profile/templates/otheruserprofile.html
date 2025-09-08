@@ -1,16 +1,16 @@
 {% extends 'base.html' %} {% block content %}
 
-<div class="container ms-2">
+<div class="container ms-6 user-links ">
   <div class="row">
     <!-- LEFT SIDE -->
 
-    <div class="col-3 mt-4">
+    <div class="col-3 mt-4 ">
       {% if request.session.user %}
       <h2>
-        {{ request.session.user_first_name}}{{request.session.user_last_name}}
+        {{ request.session.user_first_name}} {{request.session.user_last_name}}
       </h2>
 
-      <ul class="list-group">
+      <ul class="list-group mt-4 me-5">
         <li class="list-group-item"><a href="/profile/">Profile</a></li>
         <li class="list-group-item"><a href="/profile/">Posts</a></li>
         <li class="list-group-item"><a href="/friends/">Friends</a></li>
@@ -34,6 +34,7 @@
               <li class="list-group-item">Hobbies</li>
               <li class="list-group-item">Location</li>
             </ul>
+            {% if otheruser.id not in friends_ids %}
             <div class="card-body">
               {% if request_sent %}
               <button
@@ -51,13 +52,14 @@
               </button>
               {% endif %}
             </div>
+            {% endif %}
           </div>
         </div>
         <!-- {% if posts %} -->
         <!-- recent userposts -->
-        <div class="userposts">
+        <!-- <div class="userposts"> -->
           {% for post in posts %}
-          <div class="card mt-4" style="width: 36rem">
+          <div class="card mt-4" style="width: 36rem; border: none;" id="{{post.id}}">
             <div class="card-body">
               <form action="/otheruserprofile/" method="post">
                 {% csrf_token %}
@@ -77,18 +79,55 @@
               </form>
               <!-- <h5 class="card-title">{{ user.first_name }}</h5> -->
               <!-- <h6 class="card-subtitle mb-2 text-muted">Card subtitle</h6> -->
-              <p class="card-text p-2">{{ post.post_content }}</p>
-              <button
-                class="like-btn"
-                style="border: none; background-color: transparent"
-                data-post-id="{{post.id}}"
-              >
-                {% if post.id in liked_post_ids %}
-                <i class="bi bi-hand-thumbs-up-fill"></i>
-                {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
-              </button>
-              <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
-              <a href="#" class="card-link">Comment</a>
+              <div class="card mt-2">
+                <p class="card-text p-2" >{{ post.post_content }}</p>
+              </div>
+              <div class="reaction mt-2">
+                <button
+                  class="like-btn"
+                  style="border: none; background-color: transparent"
+                  data-post-id="{{post.id}}"
+                >
+                  {% if post.id in liked_post_ids %}
+                  <i class="bi bi-hand-thumbs-up-fill"></i>
+                  {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
+                </button>
+                <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
+                <button
+                  class="btn comment-btn"
+                  data-div-id="comment-sect-{{post.id}}"
+                  data-post-id="{{post.id}}"
+                  style="border: none"
+                >
+                  Comment
+                </button>
+                <span id="comment-count-{{ post.id }}"
+              >{{ post.comment_count }}</span
+            >
+
+                <div hidden id="comment-sect-{{post.id}}">
+                  <textarea
+                    class="form-control comment"
+                    id="post-comment-{{post.id}}"
+                    data-post-id="{{post.id}}"
+                  ></textarea>
+                  <button
+                    class="m-2 save-comment-btn"
+                    data-textarea-id="post-comment-{{post.id}}"
+                    data-div-id="comment-sect-{{post.id}}"
+                  >
+                    Post comment
+                  </button>
+                  <span id="comment-count-{{ post.id }}"
+                    >{{post.comment_count}}</span
+                  >
+
+                  <div
+                    class="comments-container m-1"
+                    id="comments-container-{{post.id}}"
+                  ></div>
+                </div>
+              </div>
             </div>
           </div>
           {% endfor %}

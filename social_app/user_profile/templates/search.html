@@ -1,0 +1,91 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="container ms-2 user-links">
+  <div class="row">
+    <!-- LEFT SIDE -->
+
+    <div class="col-3 mt-4">
+      {% if request.session.user %}
+      <h2>
+        {{ request.session.user_first_name}}{{request.session.user_last_name}}
+      </h2>
+
+      <ul class="list-group">
+        <li class="list-group-item"><a href="/profile/">Profile</a></li>
+        <li class="list-group-item"><a href="/profile/">Posts</a></li>
+        <li class="list-group-item"><a href="/friends/">Friends</a></li>
+      </ul>
+    </div>
+    {% endif %}
+
+    <div class="col-6 mt-4">
+      <div class="mb-3">
+        <!-- other_user profile datails -->
+        {% for user in user_result %}
+        <div class="profiledetails">
+          <div class="card" style="width: 36rem">
+            <img src="..." class="card-img-top" alt="..." />
+            <div class="card-body">
+              <form action="/otheruserprofile/" method="post">
+                {% csrf_token %}
+                <input
+                  hidden
+                  type="text"
+                  name="otheruser"
+                  value="{{user.id}}"
+                  style="border: none"
+                />
+                <button
+                  type="submit"
+                  style="border: none; background-color: transparent"
+                >
+                  {{user.first_name}} {{user.last_name}}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- recent userposts -->
+        <div class="userposts">
+          {% for post in post_result %}
+          <div class="card mt-4" style="width: 36rem; border: none">
+            <div class="card-body">
+              <h5>{{post.user}} {{post.user.last_name}}</h5>
+              {% if post.user.id != request.session.user %}
+              <form action="/otheruserprofile/#{{post.id}}" method="post">
+                {% else %}
+                <form action="/profile/#{{ post.id }}" method="post">
+                {% endif %} {% csrf_token %}
+                <input
+                  hidden
+                  type="text"
+                  name="otheruser"
+                  value="{{post.user.id}}"
+                  style="border: none"
+                />
+                <input
+                  hidden
+                  type="text"
+                  name="post"
+                  value="{{post.id}}"
+                  style="border: none"
+                />
+                <button
+                  type="submit"
+                  style="border: none; background-color: transparent"
+                >
+                  <p style="text-align: left">{{post.post_content}}</p>
+                </button>
+              </form>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

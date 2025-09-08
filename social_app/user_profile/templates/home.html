@@ -1,15 +1,11 @@
 {% extends 'base.html' %} {% block content %}
 
-<!-- body -->
-
-<div class="container ms-2">
+<div class="container ms-6  user-links">
   <div class="row">
-    <!-- LEFT SIDE -->
-
     {% if user %}
     <div class="col-3 mt-4">
-      <h2>{{ user.first_name}} {{user.last_name}}</h2>
-      <ul class="list-group">
+      <h3>{{ user.first_name }} {{ user.last_name }}</h3  >
+      <ul class="list-group mt-4 me-5">
         <li class="list-group-item"><a href="/profile/">Profile</a></li>
         <li class="list-group-item"><a href="/profile/">Posts</a></li>
         <li class="list-group-item"><a href="/friends/">Friends</a></li>
@@ -17,66 +13,99 @@
     </div>
     {% endif %}
 
-    <!-- MIDDLE POSTS -->
     <div class="col-6 mt-4">
-      <h1>Recent posts</h1>
-      <!-- FOR LOOP FOR ALL THE POSTS -->
+      <h3>Recent posts</h3>
       {% for post in posts %}
-      <div class="card mt-4" style="width: 36rem">
+      <div class="card mt-4 mb-2" style="width: 36rem ; border: none;" id="card-{{ post.id }}">
         <div class="card-body">
-          <h5 class="card-title">
-            <form action="/otheruserprofile/" method="post">
-              {% csrf_token %}
-              <input
-                hidden
-                type="text"
-                name="otheruser"
-                value="{{ post.user.id }}"
-                style="border: none"
-              />
-              <button
-                type="submit"
-                style="border: none; background-color: transparent"
-              >
-                {{post.user}} {{post.user.last_name}}
-              </button>
-            </form>
-            <!-- <a href="/other-user-profile/" style="text-decoration: none"
-              >{{post.user}}</a
-            > -->
-          </h5>
-          <!-- <h6 class="card-subtitle mb-2 text-muted">user name</h6> -->
-          <p class="card-text p-2">{{post.post_content}}</p>
-          <button
-            class="like-btn"
-            style="border: none; background-color: transparent"
-            data-post-id="{{post.id}}"
-          >
-            {% if post.id in liked_post_ids %}
-            <i class="bi bi-hand-thumbs-up-fill"></i>
-            {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
-          </button>
-          <span id="like-count-{{ post.id }}">{{post.like_count}}</span>
-          <!-- <a href="#" class="card-link" data-post-id="{{post.id}}"
-            >like<i class="bi bi-hand-thumbs-up"></i
-          ></a> -->
+          <div class="d-flex justify-content-between">
+            <h6 class="card-title">
+              <form action="/otheruserprofile/" method="post">
+                {% csrf_token %}
+                <input
+                  hidden
+                  type="text"
+                  name="otheruser"
+                  value="{{ post.user.id }}"
+                  style="border: none"
+                />
+                <button
+                  type="submit"
+                  style="border: none; background-color: transparent"
+                >
+                  {{ post.user.first_name }} {{ post.user.last_name }}
+                </button>
+              </form>
+            </h6>
+            {% if post.user.id == user.id %}
+            <button
+              class="btn btn-sm btn-danger mt-1 post-delete-btn"
+              data-post-id="{{ post.id }}"
+              data-card-id="card-{{ post.id }}"
+            >
+              Delete
+            </button>
+            {% endif %}
+          </div>
+          <div class="card mt-2">
+            <p class="card-text p-2">{{ post.post_content }}</p>
+          </div>
+          <div class="reaction mt-2">
+            <button
+              class="like-btn"
+              style="border: none; background-color: transparent"
+              data-post-id="{{ post.id }}"
+            >
+              {% if post.id in liked_post_ids %}
+              <i class="bi bi-hand-thumbs-up-fill"></i>
+              {% else %} <i class="bi bi-hand-thumbs-up"></i> {% endif %}
+            </button>
+            <span id="like-count-{{ post.id }}">{{ post.like_count }}</span>
+            <button
+              class="btn comment-btn"
+              data-div-id="comment-sect-{{ post.id }}"
+              data-post-id="{{ post.id }}"
+              style="border: none"
+            >
+              Comment
+            </button>
+            <span id="comment-count-{{ post.id }}"
+              >{{ post.comment_count }}</span
+            >
 
-          <a href="#" class="card-link">comment</a>
+            <div hidden id="comment-sect-{{ post.id }}">
+              <textarea
+                class="form-control comment"
+                id="post-comment-{{ post.id }}"
+                data-post-id="{{ post.id }}"
+              ></textarea>
+              <button
+                class="m-2 save-comment-btn"
+                data-textarea-id="post-comment-{{ post.id }}"
+                data-div-id="comment-sect-{{ post.id }}"
+              >
+                Post comment
+              </button>
+              <div
+                class="comments-container m-1"
+                id="comments-container-{{ post.id }}"
+              ></div>
+            </div>
+          </div>
         </div>
       </div>
       {% endfor %}
     </div>
 
-    <!-- RIGHT SIDE -->
-
-    <div class="col-2 mt-4 offset-md-1">
-      <h2>User_name</h2>
-      <ul class="list-group">
-        <li class="list-group-item">An item</li>
-        <li class="list-group-item">A second item</li>
-        <li class="list-group-item">A third item</li>
-        <li class="list-group-item">A fourth item</li>
-        <li class="list-group-item">And a fifth one</li>
+    <!-- right side  -->
+    <div class="col-2 mt-4 mb-4 offset-md-1 user-links-r">
+      <h4>{{ user.first_name }} {{ user.last_name }}</h4>
+      <ul class="list-group mt-4">
+        <li class="list-group-item"><a href="">An item</a></li>
+        <li class="list-group-item"><a href="">A second item</a></li>
+        <li class="list-group-item"><a href="">A third item</a></li>
+        <li class="list-group-item"><a href="">A fourth item</a></li>
+        <li class="list-group-item"><a href="">And a fifth one</a></li>
       </ul>
     </div>
   </div>
